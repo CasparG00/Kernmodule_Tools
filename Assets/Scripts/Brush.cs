@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class Draw : MonoBehaviour
+public class Brush : MonoBehaviour
 {
     [SerializeField] private Color drawColor = Color.black;
     [SerializeField] private Color eraseColor = Color.white;
     [SerializeField] private int brushSize = 5;
 
-    Vector2Int texCoord = new Vector2Int();
-    Vector2Int lastTexCoord = new Vector2Int();
+    private Vector2Int texCoord;
+    private Vector2Int lastTexCoord;
 
     private void Update()
     {
@@ -20,21 +20,22 @@ public class Draw : MonoBehaviour
             {
                 var texture = sr.sprite.texture;
 
-                var coord = (Vector2)hit.transform.position - hit.point;
+                var coord = (Vector2) hit.transform.position - hit.point;
                 coord *= -1;
                 coord += Vector2.one * 0.5f;
 
                 coord.x *= texture.width;
                 coord.y *= texture.height;
 
-                texCoord.x = (int)coord.x;
-                texCoord.y = (int)coord.y;
+                texCoord.x = (int) coord.x;
+                texCoord.y = (int) coord.y;
 
                 if (Input.GetMouseButton(0))
                 {
                     PlotLine(lastTexCoord, texCoord, texture, drawColor);
                     texture.Apply();
                 }
+
                 if (Input.GetMouseButton(1))
                 {
                     PlotLine(lastTexCoord, texCoord, texture, eraseColor);
@@ -43,12 +44,12 @@ public class Draw : MonoBehaviour
             }
         }
     }
-
+    
     private void LateUpdate()
     {
         lastTexCoord = texCoord;
     }
-    
+
     private void PlotLine(Vector2Int start, Vector2Int end, Texture2D target, Color color)
     {
         var dx = Mathf.Abs(end.x - start.x);
