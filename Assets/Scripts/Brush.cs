@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Brush : MonoBehaviour
@@ -13,26 +12,32 @@ public class Brush : MonoBehaviour
     private Color[] original;
     private Color[] backup;
 
+    private Texture2D texture;
+    private RaycastHit2D hit;
+
+    /// TODO: Move Mouse Commands outside of raycast statement.
+
     private void Update()
     {
-        var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        if (texture != null)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                backup = texture.GetPixels();
+            }
+        }
+
+        if (!hit)
+        {
+            lastTexCoord = texCoord;
+        }
+        hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if (hit)
         {
             var sr = hit.transform.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
-                var texture = sr.sprite.texture;
-                
-                if (Input.GetMouseButtonDown(0))
-                {
-                    backup = texture.GetPixels();
-                }
-
-                if (Input.GetMouseButtonUp(0))
-                {
-                    original = texture.GetPixels();
-                    SendDrawCommand(original, backup, texture);
-                }
+                texture = sr.sprite.texture;
 
                 var coord = (Vector2) hit.transform.position - hit.point;
                 coord *= -1;
@@ -43,17 +48,17 @@ public class Brush : MonoBehaviour
 
                 texCoord.x = (int) coord.x;
                 texCoord.y = (int) coord.y;
-
+                
                 if (Input.GetMouseButton(0))
                 {
                     PlotLine(lastTexCoord, texCoord, texture, drawColor);
                     texture.Apply();
                 }
 
-                if (Input.GetMouseButton(1))
+                if (Input.GetMouseButtonUp(0))
                 {
-                    PlotLine(lastTexCoord, texCoord, texture, eraseColor);
-                    texture.Apply();
+                    original = texture.GetPixels();
+                    SendDrawCommand(original, backup, texture);
                 }
             }
         }
@@ -70,7 +75,7 @@ public class Brush : MonoBehaviour
         CommandHandler.instance.Add(draw);
     }
 
-    private void PlotLine(Vector2Int start, Vector2Int end, Texture2D target, Color color)
+    private void PlotLine(Vector2Int start, Vector2Int end, Texture2D tex, Color color)
     {
         var dx = Mathf.Abs(end.x - start.x);
         var sx = start.x < end.x ? 1 : -1;
@@ -80,7 +85,7 @@ public class Brush : MonoBehaviour
 
         while (true)
         {
-            target.SetPixel(start.x, start.y, color);
+            DrawCircle(tex, color, start, brushSize);
             if (start.x == end.x && start.y == end.y) break;
             var e2 = 2 * error;
             if (e2 >= dy)
@@ -94,6 +99,19 @@ public class Brush : MonoBehaviour
             if (start.y == end.y) break;
             error += dx;
             start.y += sy;
+        }
+    }
+    
+    private void DrawCircle(Texture2D tex, Color color, Vector2Int pos, int radius)
+    {
+        float rSquared = radius * radius;
+
+        for (var u = pos.x - radius; u < pos.x + radius + 1; u++)
+        for (var v = pos.y - radius; v < pos.y + radius + 1; v++)
+        {
+            if (!((pos.x - u) * (pos.x - u) + (pos.y - v) * (pos.y - v) < rSquared)) continue;
+            if (u < 0 || v < 0 || u >= tex.width || v >= tex.height) continue;
+            tex.SetPixel(u, v, color);
         }
     }
 }
