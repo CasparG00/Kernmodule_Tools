@@ -15,6 +15,8 @@ public class CameraController : MonoBehaviour
             cam.transform.position += mouseInput * sensitivity * cam.orthographicSize;
         }
 
+        var mouse = Input.mousePosition;
+        if (mouse.x < 0 || mouse.y < 0 || mouse.x > Screen.width || mouse.y > Screen.height) return;
         cam.orthographicSize += -Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
         cam.orthographicSize = Mathf.Max(cam.orthographicSize, maxZoom);
     }

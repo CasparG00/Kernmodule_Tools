@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Brush : MonoBehaviour
@@ -9,9 +10,11 @@ public class Brush : MonoBehaviour
     private Vector2Int texCoord;
     private Vector2Int lastTexCoord;
 
+    private Color[] original;
+    private Color[] backup;
+
     private void Update()
     {
-
         var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if (hit)
         {
@@ -19,6 +22,17 @@ public class Brush : MonoBehaviour
             if (sr != null)
             {
                 var texture = sr.sprite.texture;
+                
+                if (Input.GetMouseButtonDown(0))
+                {
+                    backup = texture.GetPixels();
+                }
+
+                if (Input.GetMouseButtonUp(0))
+                {
+                    original = texture.GetPixels();
+                    SendDrawCommand(original, backup, texture);
+                }
 
                 var coord = (Vector2) hit.transform.position - hit.point;
                 coord *= -1;
@@ -48,6 +62,12 @@ public class Brush : MonoBehaviour
     private void LateUpdate()
     {
         lastTexCoord = texCoord;
+    }
+    
+    private void SendDrawCommand(Color[] original, Color[] backup, Texture2D texture)
+    {
+        var draw = new Draw(original, backup, texture);
+        CommandHandler.instance.Add(draw);
     }
 
     private void PlotLine(Vector2Int start, Vector2Int end, Texture2D target, Color color)
