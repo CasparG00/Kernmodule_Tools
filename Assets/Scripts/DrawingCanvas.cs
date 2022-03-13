@@ -1,9 +1,11 @@
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class DrawingCanvas : MonoBehaviour
 {
     [SerializeField] private Vector2Int canvasScale;
+    private Texture2D texture;
     
     private void Start()
     {
@@ -13,7 +15,7 @@ public class DrawingCanvas : MonoBehaviour
 
     private Sprite GenerateSprite(string name, int width, int height)
     {
-        var texture = new Texture2D(width, height)
+        texture = new Texture2D(width, height)
         {
             name = name,
             filterMode = FilterMode.Point,
@@ -28,5 +30,15 @@ public class DrawingCanvas : MonoBehaviour
         sprite.name = name + "Sprite";
 
         return sprite;
+    }
+
+    public void LoadTexture(byte[] data)
+    {
+        texture.LoadImage(data);
+    }
+
+    public Texture2D GetTexture()
+    {
+        return texture;
     }
 }
