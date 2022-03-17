@@ -3,6 +3,15 @@ using UnityEngine;
 
 public class SaveLoad : MonoBehaviour
 {
+    private Color[] original;
+    private Color[] backup;
+    private DrawingCanvas canvas;
+
+    private void Start()
+    {
+        canvas = FindObjectOfType<DrawingCanvas>();
+    }
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.S))
@@ -17,7 +26,7 @@ public class SaveLoad : MonoBehaviour
 
     private void Save()
     {
-        var data = FindObjectOfType<DrawingCanvas>().GetTexture().EncodeToPNG();
+        var data = canvas.GetTexture().EncodeToPNG();
         File.WriteAllBytes(Application.dataPath + "/canvasSave.txt", data);
         
         Debug.Log("Saving canvas to: " + Application.dataPath + "/canvasSave.txt");
@@ -25,9 +34,24 @@ public class SaveLoad : MonoBehaviour
 
     private void Load()
     {
-        var data = File.ReadAllBytes(Application.dataPath + "/canvasSave.txt");
-        FindObjectOfType<DrawingCanvas>().LoadTexture(data);
-        
-        Debug.Log("Loading canvas from: " + Application.dataPath + "/canvasSave.txt");
+        backup = canvas.GetTexture().GetPixels();
+        var path = Application.dataPath + "/canvasSave.txt";
+        if (!File.Exists(path))
+        {
+            Debug.Log("<color=orange>Error</color>: No Save File Present!");
+            return;
+        }
+        var data = File.ReadAllBytes(path);
+        canvas.LoadTexture(data);
+        original = canvas.GetTexture().GetPixels();
+        SendSaveLoadCommand(original, backup, canvas.GetTexture());
+
+        Debug.Log("Loaded canvas from: " + path);
+    }
+    
+    private void SendSaveLoadCommand(Color[] original, Color[] backup, Texture2D texture)
+    {
+        var state = new SaveLoadCommand(original, backup, texture);
+        CommandHandler.instance.Add(state);
     }
 }
