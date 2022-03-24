@@ -1,6 +1,5 @@
-using System.IO;
+using System.Windows;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 public class DrawingCanvas : MonoBehaviour
@@ -43,8 +42,9 @@ public class DrawingCanvas : MonoBehaviour
         return texture;
     }
 
-    public void ImportImage()
+    public void ImportImage(string itemPath)
     {
-        
+        itemPath = itemPath.Replace(@"/", @"\");
+        System.Diagnostics.Process.Start("explorer.exe", "/select,"+itemPath);
     }
 }
