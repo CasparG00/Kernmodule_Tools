@@ -3,7 +3,6 @@ using UnityEngine;
 public class Brush : MonoBehaviour
 {
     [SerializeField] private Color drawColor = Color.black;
-    [SerializeField] private Color eraseColor = Color.white;
     [SerializeField] private int brushSize = 5;
 
     private Vector2Int texCoord;
@@ -113,5 +112,22 @@ public class Brush : MonoBehaviour
             if (u < 0 || v < 0 || u >= tex.width || v >= tex.height) continue;
             tex.SetPixel(u, v, color);
         }
+    }
+
+    public void SetBrushSize(int size)
+    {
+        brushSize = size;
+    }
+    
+    // Due to the limitations of the unity OnClick event, a conversion from a string to a color variable is needed.
+    public void SetBrushColor(string hex)
+    {
+        var parse = ColorUtility.TryParseHtmlString(hex, out var color);
+        if (!parse)
+        {
+            Debug.Log("<color=red>Error: </color> Could not convert string " + hex + " to color");
+            return;
+        }
+        drawColor = color;
     }
 }

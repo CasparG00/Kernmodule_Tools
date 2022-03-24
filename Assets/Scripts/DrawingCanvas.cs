@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -40,5 +41,10 @@ public class DrawingCanvas : MonoBehaviour
     public Texture2D GetTexture()
     {
         return texture;
+    }
+
+    public void ImportImage()
+    {
+        
     }
 }

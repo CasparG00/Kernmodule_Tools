@@ -24,7 +24,7 @@ public class SaveLoad : MonoBehaviour
         }
     }
 
-    private void Save()
+    public void Save()
     {
         var data = canvas.GetTexture().EncodeToPNG();
         File.WriteAllBytes(Application.dataPath + "/canvasSave.txt", data);
@@ -32,7 +32,7 @@ public class SaveLoad : MonoBehaviour
         Debug.Log("Saving canvas to: " + Application.dataPath + "/canvasSave.txt");
     }
 
-    private void Load()
+    public void Load()
     {
         backup = canvas.GetTexture().GetPixels();
         var path = Application.dataPath + "/canvasSave.txt";
