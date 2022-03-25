@@ -15,7 +15,6 @@ public class ContextMenuDisabler : MonoBehaviour
         var rectSize = rect.rect;
         if (mousePos.x < rect.position.x || mousePos.y > rect.position.y || mousePos.x > rect.position.x + rectSize.width || mousePos.y < rect.position.y - rectSize.height)
         {
-            Debug.Log(rectSize.x);
             gameObject.SetActive(false);
         }
     }
