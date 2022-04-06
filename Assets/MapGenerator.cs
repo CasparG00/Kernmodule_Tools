@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-public class MapGenerator
+public static class MapGenerator
 {
     public static Texture2D Generate(Texture2D originalTexture, int mapWidth, int mapHeight)
     {
@@ -32,13 +32,13 @@ public class MapGenerator
 
     private static Texture2D AddNoise(Texture2D original, float scale, int octaves, float persistence, float lacunarity, Vector2 offset)
     {
-        float[,] noiseMap = new float[original.width, original.height];
+        var noiseMap = new float[original.width, original.height];
         
         var octaveOffsets = new Vector2[octaves];
-        for (int i = 0; i < octaves; i++)
+        for (var i = 0; i < octaves; i++)
         {
-            float offsetX = Random.Range(-100000, 100000) + offset.x;
-            float offsetY = Random.Range(-100000, 100000) + offset.y;
+            var offsetX = Random.Range(-100000, 100000) + offset.x;
+            var offsetY = Random.Range(-100000, 100000) + offset.y;
             octaveOffsets [i] = new Vector2 (offsetX, offsetY);
         }
 
@@ -47,25 +47,25 @@ public class MapGenerator
             scale = 0.0001f;
         }
         
-        float maxNoiseHeight = float.MinValue;
-        float minNoiseHeight = float.MaxValue;
+        var maxNoiseHeight = float.MinValue;
+        var minNoiseHeight = float.MaxValue;
 
-        float halfWidth = original.width * 0.5f;
-        float halfHeight = original.height * 0.5f;
+        var halfWidth = original.width * 0.5f;
+        var halfHeight = original.height * 0.5f;
 
-        for (int y = 0; y < original.height; y++)
-        for (int x = 0; x < original.width; x++)
+        for (var y = 0; y < original.height; y++)
+        for (var x = 0; x < original.width; x++)
         {
             float amplitude = 1;
             float frequency = 1;
             float noiseHeight = 0;
 
-            for (int i = 0; i < octaves; i++)
+            for (var i = 0; i < octaves; i++)
             {
-                float sampleX = (x - halfWidth) / scale * frequency + octaveOffsets[i].x;
-                float sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y;
+                var sampleX = (x - halfWidth) / scale * frequency + octaveOffsets[i].x;
+                var sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y;
 
-                float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+                var perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                 noiseHeight += perlinValue * amplitude;
 
                 amplitude *= persistence;
@@ -84,31 +84,27 @@ public class MapGenerator
             noiseMap[x, y] = noiseHeight;
         }
 
-        var result = original;
-
-        for (int y = 0; y < original.height; y++)
-        for (int x = 0; x < original.width; x++)
+        for (var y = 0; y < original.height; y++)
+        for (var x = 0; x < original.width; x++)
         {
             var value = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
-            result.SetPixel(x, y, Color.Lerp(original.GetPixel(x, y), new Color(value, value, value, 1), 0.5f));
+            original.SetPixel(x, y, Color.Lerp(original.GetPixel(x, y), new Color(value, value, value, 1), 0.5f));
         }
         
-        return result;
+        return original;
     }
 
     private static Texture2D StepFilter(Texture2D original, float edge)
     {
-        var result = original;
-        
-        for (int y = 0; y < original.height; y++)
-        for (int x = 0; x < original.width; x++)
+        for (var y = 0; y < original.height; y++)
+        for (var x = 0; x < original.width; x++)
         {
             var color = original.GetPixel(x, y);
             
-            result.SetPixel(x, y, color.grayscale < edge ? Color.black : Color.white);
+            original.SetPixel(x, y, color.grayscale < edge ? Color.black : Color.white);
         }
         
-        return result;
+        return original;
     }
 
     private static Texture2D CreateOutline(Texture2D original, Color color, int thickness)
@@ -120,8 +116,8 @@ public class MapGenerator
         
         result.SetPixels(Enumerable.Repeat(Color.white, result.width * result.height).ToArray());
         
-        for (int y = 0; y < original.height; y++)
-        for (int x = 0; x < original.width; x++)
+        for (var y = 0; y < original.height; y++)
+        for (var x = 0; x < original.width; x++)
         {
             if (original.GetPixel(x, y) != Color.black) continue;
 
