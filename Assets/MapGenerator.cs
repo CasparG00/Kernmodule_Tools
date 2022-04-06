@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class MapGenerator
@@ -9,7 +10,9 @@ public class MapGenerator
         result = ScaleTexture(result, mapWidth, mapHeight);
         result = AddNoise(result, 100, 4, 0.5f, 2, Vector2.zero);
         result = StepFilter(result, 0.52f);
-        result = CreateOutline(result, Color.red);
+        result = CreateOutline(result, Color.red, 3);
+        
+        result.Apply();
 
         return result;
     }
@@ -24,8 +27,6 @@ public class MapGenerator
             result.SetPixel(j, i, newColor);
         }
         
-        result.Apply();
-        Debug.Log("Rescaling Completed");
         return result;
     }
 
@@ -91,9 +92,7 @@ public class MapGenerator
             var value = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
             result.SetPixel(x, y, Color.Lerp(original.GetPixel(x, y), new Color(value, value, value, 1), 0.5f));
         }
-
-        result.Apply();
-
+        
         return result;
     }
 
@@ -108,44 +107,43 @@ public class MapGenerator
             
             result.SetPixel(x, y, color.grayscale < edge ? Color.black : Color.white);
         }
-
-        result.Apply();
         
         return result;
     }
 
-    private static Texture2D CreateOutline(Texture2D original, Color color)
+    private static Texture2D CreateOutline(Texture2D original, Color color, int thickness)
     {
-        var result = original;
+        var result = new Texture2D(original.width, original.height)
+        {
+            filterMode = FilterMode.Point
+        };
+        
+        result.SetPixels(Enumerable.Repeat(Color.white, result.width * result.height).ToArray());
         
         for (int y = 0; y < original.height; y++)
         for (int x = 0; x < original.width; x++)
         {
             if (original.GetPixel(x, y) != Color.black) continue;
 
-            if (original.GetPixel(x + 1, y) == Color.white)
-            {
-                result.SetPixel(x, y, color);
-            }
+            var extents = Mathf.RoundToInt(thickness);
             
-            if (original.GetPixel(x - 1, y) == Color.white)
+            for (var neighbourX = -1 - extents; neighbourX < 2 + extents; neighbourX++)
+            for (var neighbourY = -1 - extents; neighbourY < 2 + extents; neighbourY++)
             {
-                result.SetPixel(x, y, color);
-            }
-            
-            if (original.GetPixel(x, y + 1) == Color.white)
-            {
-                result.SetPixel(x, y, color);
-            }
-            
-            if (original.GetPixel(x, y - 1) == Color.white)
-            {
-                result.SetPixel(x, y, color);
+                if (Mathf.Abs(neighbourX) == Mathf.Abs(neighbourY)) continue;
+
+                var checkX = x + neighbourX;
+                var checkY = y + neighbourY;
+                
+                if (original.GetPixel(checkX, checkY) == Color.black) continue;
+
+                if (original.GetPixel(checkX, checkY) == Color.white)
+                {
+                    result.SetPixel(x, y, color);
+                }
             }
         }
-
-        result.Apply();
-
+        
         return result;
     }
 }
