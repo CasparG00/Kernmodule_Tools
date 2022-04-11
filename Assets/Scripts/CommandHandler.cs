@@ -1,24 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CommandHandler : Singleton<CommandHandler>
+public static class CommandHandler
 {
-    private readonly List<ICommand> commands = new List<ICommand>();
-    private int index;
+    private static readonly List<ICommand> commands = new List<ICommand>();
+    private static int index;
 
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            Undo();
-        }
-        else if (Input.GetKeyDown(KeyCode.Y))
-        {
-            Redo();
-        }
-    }
-    
-    public void Add(ICommand command)
+    public static void Add(ICommand command)
     {
         if (index < commands.Count)
         {
@@ -32,7 +20,7 @@ public class CommandHandler : Singleton<CommandHandler>
         Debug.Log($"Added: {command}");
     }
 
-    public void Undo()
+    public static void Undo()
     {
         if (commands.Count == 0) return;
         if (index <= 0) return;
@@ -41,7 +29,7 @@ public class CommandHandler : Singleton<CommandHandler>
         index--;
     }
     
-    public void Redo()
+    public static void Redo()
     {
         if (commands.Count == 0) return;
         if (index >= commands.Count) return;

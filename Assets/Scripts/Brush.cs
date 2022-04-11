@@ -14,8 +14,6 @@ public class Brush : MonoBehaviour
     private Texture2D texture;
     private RaycastHit2D hit;
 
-    /// TODO: Move Mouse Commands outside of raycast statement.
-
     private void Update()
     {
         if (texture != null)
@@ -71,7 +69,7 @@ public class Brush : MonoBehaviour
     private void SendDrawCommand(Color[] original, Color[] backup, Texture2D texture)
     {
         var draw = new Draw(original, backup, texture);
-        CommandHandler.instance.Add(draw);
+        CommandHandler.Add(draw);
     }
 
     private void PlotLine(Vector2Int start, Vector2Int end, Texture2D tex, Color color)

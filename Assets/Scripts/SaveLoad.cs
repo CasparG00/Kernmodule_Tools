@@ -52,6 +52,6 @@ public class SaveLoad : MonoBehaviour
     private void SendSaveLoadCommand(Color[] original, Color[] backup, Texture2D texture)
     {
         var state = new SaveLoadCommand(original, backup, texture);
-        CommandHandler.instance.Add(state);
+        CommandHandler.Add(state);
     }
 }

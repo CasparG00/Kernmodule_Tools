@@ -8,7 +8,7 @@ public static class MapGenerator
         var result = originalTexture; 
 
         result = ScaleTexture(result, mapWidth, mapHeight);
-        result = AddNoise(result, 100, 4, 0.5f, 2, Vector2.zero);
+        result = AddNoise(result, 100, 4, 0.5f, 2, Random.insideUnitCircle * Random.Range(-10000, 10000));
         result = StepFilter(result, 0.52f);
         result = CreateOutline(result, Color.red, 3);
         
