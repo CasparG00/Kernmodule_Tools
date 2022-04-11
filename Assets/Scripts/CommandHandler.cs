@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CommandHandler : Singleton<CommandHandler>
 {
-    private readonly List<ICommand> commands = new();
+    private readonly List<ICommand> commands = new List<ICommand>();
     private int index;
 
     public void Update()
